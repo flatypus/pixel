@@ -61,6 +61,7 @@ export const views = pgTable("views", {
   longitude: text("longitude"),
   isp: text("isp"),
   user_agent: text("user_agent"),
+  date: text("date").default("now()"),
 });
 
 export const view_counts = pgTable("view_counts", {
