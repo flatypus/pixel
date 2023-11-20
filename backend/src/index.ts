@@ -118,8 +118,7 @@ app
       <html>
         <body>
           <img src="https://pixel.flatypus.me/${id}?type=pixel" alt="Counter">
-          <h1>${result[0].count}</h1>
-          ${JSON.stringify(result)}
+          <span style="font-size: 0px">${result[0].count}</span>
         </body>
       </html>`,
       {
