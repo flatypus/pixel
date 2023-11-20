@@ -5,7 +5,7 @@ import { Elysia } from "elysia";
 import { integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import fetch from "node-fetch";
-import postgres from "postgres";
+import postgres, { RowList } from "postgres";
 import outdent from "outdent";
 
 config();
@@ -92,15 +92,17 @@ app
       date: new Date(),
     });
 
-    await db.execute(
+    const result = await db.execute(
       sql`
       INSERT INTO view_counts (path, count)
       VALUES (${id}, 1)
       ON CONFLICT (path) DO UPDATE
       SET count = view_counts.count + 1
       WHERE view_counts.path = ${id};
+      RETURNING count;
     `
     );
+
     if (type === "pixel") {
       return new Response(transparentPngBuffer, {
         headers: {
@@ -108,7 +110,8 @@ app
         },
       });
     }
-    // return html response
+
+    console.log(result);
 
     return new Response(
       outdent`
