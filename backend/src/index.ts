@@ -117,8 +117,7 @@ app
       outdent`
       <html>
         <body>
-          <img src="https://pixel.flatypus.me/${id}?type=pixel" alt="Counter">
-          <span style="font-size: 0px">${result[0].count}</span>
+          <span style="font-size: 1px; color: #FFFFFF01">${result[0].count}</span>
         </body>
       </html>`,
       {
