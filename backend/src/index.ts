@@ -1,10 +1,11 @@
-import { Elysia } from "elysia";
-import { cors } from "@elysiajs/cors";
 import { config } from "dotenv";
+import { cors } from "@elysiajs/cors";
 import { drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
+import { Elysia } from "elysia";
+import { integer, pgTable, serial, text } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 import fetch from "node-fetch";
-import { pgTable, serial, text } from "drizzle-orm/pg-core";
+import postgres from "postgres";
 
 config();
 
@@ -61,6 +62,12 @@ export const views = pgTable("views", {
   user_agent: text("user_agent"),
 });
 
+export const view_counts = pgTable("view_counts", {
+  id: serial("id").primaryKey(),
+  path: text("path"),
+  count: integer("count"),
+});
+
 app
   .get("/:id", async ({ params: { id }, request }) => {
     const user_agent = request.headers.get("user-agent");
@@ -70,7 +77,7 @@ app
     const ip_info_json = (await ip_info.json()) as IPInfo;
     const { country, region, city, lat, lon, isp } = ip_info_json;
 
-    db.insert(views).values({
+    await db.insert(views).values({
       path: id,
       ip: ip,
       country: country,
@@ -81,6 +88,16 @@ app
       isp: isp,
       user_agent: user_agent,
     });
+
+    await db.execute(
+      sql`
+      INSERT INTO view_counts (path, count)
+      VALUES (${id}, 1)
+      ON CONFLICT (path) DO UPDATE
+      SET count = view_counts.count + 1
+      WHERE view_counts.path = ${id};
+    `
+    );
 
     return new Response(transparentPngBuffer, {
       headers: {
