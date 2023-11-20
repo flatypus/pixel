@@ -1,12 +1,12 @@
 {
-    "scripts":{
-        "dev": "concurrently \"bun run server:dev\" \"bun run client:dev\"",
-        "install": "cd backend && bun install && cd ../frontend && bun install",
-        "server:dev": "cd backend && bun run dev",
-        "client:dev": "cd frontend && bun run dev"
-
-    },
-    "devDependencies": {
-        "concurrently": "8.2.2"
-    }
+  "scripts": {
+    "dev": "concurrently \"bun run server:dev\" \"bun run client:dev\"",
+    "install": "cd backend && bun install && cd ../frontend && bun install",
+    "server:dev": "cd backend && bun run dev",
+    "client:dev": "cd frontend && bun run dev",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
 }
