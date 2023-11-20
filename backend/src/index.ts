@@ -2,7 +2,7 @@ import { config } from "dotenv";
 import { cors } from "@elysiajs/cors";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { Elysia } from "elysia";
-import { integer, pgTable, serial, text } from "drizzle-orm/pg-core";
+import { integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import fetch from "node-fetch";
 import postgres from "postgres";
@@ -61,7 +61,7 @@ export const views = pgTable("views", {
   longitude: text("longitude"),
   isp: text("isp"),
   user_agent: text("user_agent"),
-  date: text("date").default("now()"),
+  date: timestamp("date"),
 });
 
 export const view_counts = pgTable("view_counts", {
@@ -89,6 +89,7 @@ app
       longitude: lon?.toString(),
       isp: isp,
       user_agent: user_agent,
+      date: new Date(),
     });
 
     await db.execute(
