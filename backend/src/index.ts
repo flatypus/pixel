@@ -98,7 +98,7 @@ app
       VALUES (${id}, 1)
       ON CONFLICT (path) DO UPDATE
       SET count = view_counts.count + 1
-      WHERE view_counts.path = ${id};
+      WHERE view_counts.path = ${id}
       RETURNING count;
     `
     );
