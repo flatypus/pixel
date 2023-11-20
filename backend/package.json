@@ -8,10 +8,15 @@
   },
   "dependencies": {
     "@elysiajs/cors": "^0.7.2",
-    "elysia": "latest"
+    "dotenv": "^16.3.1",
+    "drizzle-orm": "^0.29.0",
+    "elysia": "latest",
+    "node-fetch": "^3.3.2",
+    "postgres": "^3.4.3"
   },
   "devDependencies": {
-    "bun-types": "latest"
+    "bun-types": "latest",
+    "drizzle-kit": "^0.20.4"
   },
   "module": "src/index.js"
 }
