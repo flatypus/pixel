@@ -6,6 +6,7 @@ import { integer, pgTable, serial, text } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import fetch from "node-fetch";
 import postgres from "postgres";
+import outdent from "outdent";
 
 config();
 
@@ -69,7 +70,7 @@ export const view_counts = pgTable("view_counts", {
 });
 
 app
-  .get("/:id", async ({ params: { id }, request }) => {
+  .get("/:id", async ({ params: { id }, query: { type }, request }) => {
     const user_agent = request.headers.get("user-agent");
     const ip_list = request.headers.get("x-forwarded-for")?.split(",");
     const ip = ip_list?.pop()?.trim() || "";
@@ -98,12 +99,28 @@ app
       WHERE view_counts.path = ${id};
     `
     );
+    if (type === "pixel") {
+      return new Response(transparentPngBuffer, {
+        headers: {
+          "content-type": "image/png",
+        },
+      });
+    }
+    // return html response
 
-    return new Response(transparentPngBuffer, {
-      headers: {
-        "content-type": "image/png",
-      },
-    });
+    return new Response(
+      outdent`
+      <html>
+        <body>
+          <img src="https://pixel.flatypus.me/${id}?type=pixel" alt="Counter">
+        </body>
+      </html>`,
+      {
+        headers: {
+          "content-type": "text/html",
+        },
+      }
+    );
   })
   .listen(4000);
 
