@@ -5,7 +5,7 @@ import { Elysia } from "elysia";
 import { integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import fetch from "node-fetch";
-import postgres, { RowList } from "postgres";
+import postgres from "postgres";
 import outdent from "outdent";
 
 config();
@@ -15,10 +15,6 @@ const DATABASE_URL = process.env.DATABASE_URL;
 if (!DATABASE_URL) {
   throw new Error("DATABASE_URL is not defined");
 }
-
-const queryClient = postgres(DATABASE_URL);
-
-const db = drizzle(queryClient);
 
 const app = new Elysia();
 app.use(
@@ -72,6 +68,9 @@ export const view_counts = pgTable("view_counts", {
 
 app
   .get("/:id", async ({ params: { id }, query: { type }, request }) => {
+    const queryClient = postgres(DATABASE_URL);
+    const db = drizzle(queryClient);
+
     const user_agent = request.headers.get("user-agent");
     const ip_list = request.headers.get("x-forwarded-for")?.split(",");
     const ip = ip_list?.pop()?.trim() || "";
@@ -110,8 +109,6 @@ app
         },
       });
     }
-
-    console.log(result);
 
     return new Response(
       outdent`
