@@ -1,6 +1,6 @@
 # pixel
 
-A simple pixel view tracker.
+[A simple pixel view tracker.](https://view.flatypus.me)
 
 Embed `https://pixel.flatypus.me/[id]` to start tracking that id.
 
