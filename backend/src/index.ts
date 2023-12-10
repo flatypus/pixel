@@ -2,11 +2,12 @@ import { config } from "dotenv";
 import { cors } from "@elysiajs/cors";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { Elysia } from "elysia";
-import { integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
-import { sql } from "drizzle-orm";
+import { sql, eq } from "drizzle-orm";
+import * as schema from "./schema";
 import fetch from "node-fetch";
 import postgres from "postgres";
 import outdent from "outdent";
+import { views } from "./schema";
 
 config();
 
@@ -46,27 +47,22 @@ type IPInfo = {
   as: string;
 };
 
-export const views = pgTable("views", {
-  id: serial("id").primaryKey(),
-  path: text("path"),
-  ip: text("ip"),
-  country: text("country"),
-  region: text("region"),
-  city: text("city"),
-  latitude: text("latitude"),
-  longitude: text("longitude"),
-  isp: text("isp"),
-  user_agent: text("user_agent"),
-  date: timestamp("date"),
-});
-
-export const view_counts = pgTable("view_counts", {
-  id: serial("id").primaryKey(),
-  path: text("path"),
-  count: integer("count"),
-});
-
 app
+  .get("/views/:id", async ({ params: { id } }) => {
+    const queryClient = postgres(DATABASE_URL);
+    const db = drizzle(queryClient, { schema });
+
+    const result = await db.query.views.findMany({
+      where: eq(views.path, id),
+    });
+
+    return new Response(JSON.stringify(result), {
+      headers: {
+        "content-type": "application/json",
+      },
+    });
+  })
+
   .get("/:id", async ({ params: { id }, query: { type }, request }) => {
     const queryClient = postgres(DATABASE_URL);
     const db = drizzle(queryClient);
@@ -102,27 +98,27 @@ app
     `
     );
 
-    if (type === "pixel") {
-      return new Response(transparentPngBuffer, {
-        headers: {
-          "content-type": "image/png",
-        },
-      });
+    if (type === "tracker") {
+      return new Response(
+        outdent`
+        <html>
+          <body>
+            <span style="font-size: 1px; color: #FFFFFF01">${result[0].count}</span>
+          </body>
+        </html>`,
+        {
+          headers: {
+            "content-type": "text/html",
+          },
+        }
+      );
     }
 
-    return new Response(
-      outdent`
-      <html>
-        <body>
-          <span style="font-size: 1px; color: #FFFFFF01">${result[0].count}</span>
-        </body>
-      </html>`,
-      {
-        headers: {
-          "content-type": "text/html",
-        },
-      }
-    );
+    return new Response(transparentPngBuffer, {
+      headers: {
+        "content-type": "image/png",
+      },
+    });
   })
   .listen(4000);
 
