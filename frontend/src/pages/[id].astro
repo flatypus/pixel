@@ -24,15 +24,15 @@ const data: Entry[] = await (
       <div class="w-full grid grid-cols-3">
         <div class="p-8">
           <h3>Views per day</h3>
-          <Graph client:only data={data} />
+          <Graph client:only="react" data={data} />
         </div>
         <div class="p-8">
           <h3>Views by country</h3>
-          <CountryPieChart client:only data={data} />
+          <CountryPieChart client:only="react" data={data} />
         </div>
         <div class="p-8">
           <h3>Views by city</h3>
-          <CityPieChart client:only data={data} />
+          <CityPieChart client:only="react" data={data} />
         </div>
       </div>
 
