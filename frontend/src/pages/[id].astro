@@ -2,6 +2,7 @@
 import Layout from "../layouts/Layout.astro";
 import { Graph } from "../components/Graph.tsx";
 import { CountryPieChart, CityPieChart } from "../components/Pie.tsx";
+import { Geo } from "../components/Geo.tsx";
 import type { Entry } from "../types/entry";
 
 const { id } = Astro.params;
@@ -27,13 +28,17 @@ const data: Entry[] = await (
           <Graph client:only="react" data={data} />
         </div>
         <div class="p-8">
-          <h3>Views by country</h3>
-          <CountryPieChart client:only="react" data={data} />
-        </div>
-        <div class="p-8">
           <h3>Views by city</h3>
           <CityPieChart client:only="react" data={data} />
         </div>
+        <div class="p-8">
+          <h3>Views by country</h3>
+          <CountryPieChart client:only="react" data={data} />
+        </div>
+      </div>
+      <div class="p-8">
+        <h3>Views by country</h3>
+        <Geo client:only="react" data={data} />
       </div>
 
       <style>

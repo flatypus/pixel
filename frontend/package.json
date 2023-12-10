@@ -16,6 +16,7 @@
     "@astrojs/tailwind": "^5.0.2",
     "@types/react-dom": "^18.0.6",
     "astro": "^3.5.5",
+    "chartjs-chart-geo": "^4.2.7",
     "estree-walker": "2.0.2",
     "react": "^18.0.0",
     "react-chartjs-2": "^5.2.0",

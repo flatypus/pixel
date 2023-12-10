@@ -1,4 +1,3 @@
-import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   LineElement,
@@ -8,6 +7,7 @@ import {
   CategoryScale,
   Tooltip,
 } from "chart.js";
+import { Line } from "react-chartjs-2";
 import { useEffect, useState } from "react";
 import type { Entry } from "../types/entry";
 
@@ -64,7 +64,12 @@ export function Graph({ data }: { data: any }) {
           },
         ],
       }}
-      options={{ responsive: false }}
+      options={{
+        responsive: false,
+        interaction: {
+          mode: "point",
+        },
+      }}
     />
   );
 }
