@@ -8,6 +8,10 @@ export default defineConfig({
   output: "server",
   integrations: [tailwind()],
   adapter: node({
-    mode: "standalone"
-  })
+    mode: "standalone",
+  }),
+  server: {
+    host: "0.0.0.0",
+    port: 3000,
+  },
 });
