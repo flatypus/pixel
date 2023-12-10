@@ -1,21 +1,57 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { Graph } from "../components/Graph.tsx";
+import { CountryPieChart, CityPieChart } from "../components/Pie.tsx";
+import type { Entry } from "../types/entry";
+
 const { id } = Astro.params;
 
-const res = await (
+const data: Entry[] = await (
   await fetch(`${import.meta.env.PUBLIC_API_URL}/views/${id}`)
 ).json();
 ---
 
 <Layout title={`pixel | ${id}`}>
   <main>
-    <h1>{id}</h1>
-    <p>{JSON.stringify(res)}</p>
+    <h1>Tracking: {id}</h1>
+    <h3>
+      Total views: {data.length}
+
+      {
+        data?.length > 0 &&
+          `since ${new Date(data.map((e) => e.date).at(0) ?? 0).toDateString()}`
+      }
+      <div class="w-full grid grid-cols-3">
+        <div class="p-8">
+          <h3>Views per day</h3>
+          <Graph client:only data={data} />
+        </div>
+        <div class="p-8">
+          <h3>Views by country</h3>
+          <CountryPieChart client:only data={data} />
+        </div>
+        <div class="p-8">
+          <h3>Views by city</h3>
+          <CityPieChart client:only data={data} />
+        </div>
+      </div>
+
+      <style>
+        h1 {
+          font-size: 2rem;
+          font-weight: 700;
+          margin-bottom: 1rem;
+        }
+        h3 {
+          font-size: 1.5rem;
+          font-weight: 500;
+          margin-bottom: 1rem;
+        }
+        main {
+          color: white;
+          padding: 40px;
+        }
+      </style>
+    </h3>
   </main>
 </Layout>
-
-<style>
-  main {
-    color: white;
-  }
-</style>
