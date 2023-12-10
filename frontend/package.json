@@ -29,5 +29,8 @@
     "@types/uuid": "^9.0.7",
     "prettier": "^3.1.0",
     "prettier-plugin-tailwindcss": "^0.5.7"
+  },
+  "resolutions": {
+    "string-width": "4.2.3"
   }
 }
