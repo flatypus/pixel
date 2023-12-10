@@ -1,11 +1,23 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { v4 as uuidv4 } from "uuid";
+
+const uuid = uuidv4();
 ---
 
-<Layout title="Welcome to Astro.">
+<Layout title="pixel | a simple view tracker">
   <main>
-    <h1>Pixel | Simple View Tracker</h1>
-    <p>View tracker</p>
+    <h1>pixel | a simple view tracker</h1>
+    <p>
+      Embed <a href=`https://pixel.flatypus.me/${uuid}`>
+        https://pixel.flatypus.me/{uuid}
+      </a> in your website to track views.
+    </p>
+    <p>
+      Visit <a href=`https://view.flatypus.me/${uuid}`
+        >https://view.flatypus.me/{uuid}
+      </a> to view stats.
+    </p>
   </main>
 </Layout>
 
@@ -24,5 +36,17 @@ import Layout from "../layouts/Layout.astro";
     font-weight: 50;
     line-height: 1;
     margin-bottom: 1em;
+  }
+  p {
+    margin-bottom: 1em;
+    font-size: 0.9rem;
+  }
+  a {
+    color: #0070f3;
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
   }
 </style>
