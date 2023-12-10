@@ -2,19 +2,20 @@
 import Layout from "../layouts/Layout.astro";
 const { id } = Astro.params;
 
-fetch(`${import.meta.env.PUBLIC_API_URL}/pixel/${id}`)
-  .then((res) => res.json())
-  .then((data) => {
-    if (data.error) {
-      window.location.href = "/";
-    }
-  })
-  .catch((err) => {
-    console.error(err);
-    window.location.href = "/";
-  });
+const res = await (
+  await fetch(`${import.meta.env.PUBLIC_API_URL}/views/${id}`)
+).json();
 ---
 
 <Layout title={`pixel | ${id}`}>
-  <h1>{id}</h1>
+  <main>
+    <h1>{id}</h1>
+    <p>{JSON.stringify(res)}</p>
+  </main>
 </Layout>
+
+<style>
+  main {
+    color: white;
+  }
+</style>
