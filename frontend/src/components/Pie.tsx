@@ -37,9 +37,10 @@ function PieChart({ labels, counts }: { labels: string[]; counts: number[] }) {
 
   return (
     <Pie
+      width={600}
+      height={300}
       style={{ width: "100%" }}
       className="w-full"
-      onLoad={() => console.log("loaded")}
       options={{ responsive: false }}
       data={{
         labels: labels,

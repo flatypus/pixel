@@ -50,9 +50,10 @@ export function Graph({ data }: { data: any }) {
 
   return (
     <Line
+      width={600}
+      height={300}
       style={{ width: "100%" }}
       className="w-full"
-      onLoad={() => console.log("loaded")}
       data={{
         labels: dates,
         datasets: [

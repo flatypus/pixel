@@ -1,7 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { Graph } from "../components/Graph.tsx";
-import { CountryPieChart, CityPieChart } from "../components/Pie.tsx";
+import { CityPieChart } from "../components/Pie.tsx";
 import { Geo } from "../components/Geo.tsx";
 import type { Entry } from "../types/entry";
 
@@ -22,7 +22,7 @@ const data: Entry[] = await (
         data?.length > 0 &&
           `since ${new Date(data.map((e) => e.date).at(0) ?? 0).toDateString()}`
       }
-      <div class="w-full grid grid-cols-3">
+      <div class="w-full grid grid-cols-2">
         <div class="p-8">
           <h3>Views per day</h3>
           <Graph client:only="react" data={data} />
@@ -30,10 +30,6 @@ const data: Entry[] = await (
         <div class="p-8">
           <h3>Views by city</h3>
           <CityPieChart client:only="react" data={data} />
-        </div>
-        <div class="p-8">
-          <h3>Views by country</h3>
-          <CountryPieChart client:only="react" data={data} />
         </div>
       </div>
       <div class="p-8">
