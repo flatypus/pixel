@@ -65,7 +65,7 @@ app
   })
 
   .get("/:id", async ({ params: { id }, query: { type }, request }) => {
-    const { host, pathname } = new URL(request.url);
+    const { host, pathname } = new URL(request.headers.get("referer") || "");
 
     let result;
     if (!host.startsWith("localhost:")) {
