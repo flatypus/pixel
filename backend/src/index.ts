@@ -18,11 +18,6 @@ if (!DATABASE_URL) {
   throw new Error("DATABASE_URL is not defined");
 }
 
-const queryClient = postgres(DATABASE_URL);
-const db = drizzle(queryClient, { schema });
-await migrate(db, { migrationsFolder: "./drizzle" });
-await queryClient.end();
-
 const app = new Elysia();
 app.use(
   cors({
@@ -71,35 +66,38 @@ app
 
   .get("/:id", async ({ params: { id }, query: { type }, request }) => {
     const { host, pathname } = new URL(request.url);
-    const queryClient = postgres(DATABASE_URL);
-    const db = drizzle(queryClient, {
-      schema,
-    });
 
-    const user_agent = request.headers.get("user-agent");
-    const ip_list = request.headers.get("x-forwarded-for")?.split(",");
-    const ip = ip_list?.pop()?.trim() || "";
-    const ip_info = await fetch(`http://ip-api.com/json/${ip}`);
-    const ip_info_json = (await ip_info.json()) as IPInfo;
-    const { country, region, city, lat, lon, isp } = ip_info_json;
+    let result;
+    if (!host.startsWith("localhost:")) {
+      const queryClient = postgres(DATABASE_URL);
+      const db = drizzle(queryClient, {
+        schema,
+      });
 
-    await db.insert(views).values({
-      path: id,
-      ip: ip,
-      country: country,
-      region: region,
-      city: city,
-      latitude: lat?.toString(),
-      longitude: lon?.toString(),
-      isp: isp,
-      user_agent: user_agent,
-      host: host,
-      pathname: pathname,
-      date: new Date(),
-    });
+      const user_agent = request.headers.get("user-agent");
+      const ip_list = request.headers.get("x-forwarded-for")?.split(",");
+      const ip = ip_list?.pop()?.trim() || "";
+      const ip_info = await fetch(`http://ip-api.com/json/${ip}`);
+      const ip_info_json = (await ip_info.json()) as IPInfo;
+      const { country, region, city, lat, lon, isp } = ip_info_json;
 
-    const result = await db.execute(
-      sql`
+      await db.insert(views).values({
+        path: id,
+        ip: ip,
+        country: country,
+        region: region,
+        city: city,
+        latitude: lat?.toString(),
+        longitude: lon?.toString(),
+        isp: isp,
+        user_agent: user_agent,
+        host: host,
+        pathname: pathname,
+        date: new Date(),
+      });
+
+      result = await db.execute(
+        sql`
       INSERT INTO view_counts (path, count)
       VALUES (${id}, 1)
       ON CONFLICT (path) DO UPDATE
@@ -107,14 +105,17 @@ app
       WHERE view_counts.path = ${id}
       RETURNING count;
     `,
-    );
+      );
+    }
 
     if (type === "tracker") {
       return new Response(
         outdent`
         <html>
           <body>
-            <span style="font-size: 1px; color: #FFFFFF01">${result[0].count}</span>
+            <span style="font-size: 1px; color: #FFFFFF01">${
+              result ? result[0].count : 0
+            }</span>
           </body>
         </html>`,
         {
