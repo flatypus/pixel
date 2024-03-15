@@ -1,13 +1,11 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import { Graph } from "../components/Graph.tsx";
-import { CityPieChart } from "../components/Pie.tsx";
-import { Geo } from "../components/Geo.tsx";
-import type { Entry } from "../types/entry";
+import type { NestedObject } from "../types/entry";
+import Display from "../components/Display";
 
 const { id } = Astro.params;
 
-const data: Entry[] = await (
+const all_data: NestedObject = await (
   await fetch(`${import.meta.env.PUBLIC_API_URL}/views/${id}`)
 ).json();
 ---
@@ -15,44 +13,18 @@ const data: Entry[] = await (
 <Layout title={`pixel | ${id}`}>
   <main>
     <h1>Tracking: {id}</h1>
-    <h3>
-      Total views: {data.length}
-
-      {
-        data?.length > 0 &&
-          `since ${new Date(data.map((e) => e.date).at(0) ?? 0).toDateString()}`
+    <Display data={all_data} client:only="react" />
+    <style>
+      h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
       }
-      <div class="w-full grid grid-cols-2">
-        <div class="p-8">
-          <h3>Views per day</h3>
-          <Graph client:only="react" data={data} />
-        </div>
-        <div class="p-8">
-          <h3>Views by city</h3>
-          <CityPieChart client:only="react" data={data} />
-        </div>
-      </div>
-      <div class="p-8">
-        <h3>Views by country</h3>
-        <Geo client:only="react" data={data} />
-      </div>
 
-      <style>
-        h1 {
-          font-size: 2rem;
-          font-weight: 700;
-          margin-bottom: 1rem;
-        }
-        h3 {
-          font-size: 1.5rem;
-          font-weight: 500;
-          margin-bottom: 1rem;
-        }
-        main {
-          color: white;
-          padding: 40px;
-        }
-      </style>
-    </h3>
+      main {
+        color: white;
+        padding: 40px;
+      }
+    </style>
   </main>
 </Layout>

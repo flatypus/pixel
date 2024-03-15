@@ -1,7 +1,7 @@
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Colors } from "chart.js";
 import { Pie } from "react-chartjs-2";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Entry } from "../types/entry";
 
 function count(data: Entry[], key: keyof Entry) {
@@ -37,11 +37,11 @@ function PieChart({ labels, counts }: { labels: string[]; counts: number[] }) {
 
   return (
     <Pie
-      width={600}
-      height={300}
-      style={{ width: "100%" }}
       className="w-full"
+      height={300}
       options={{ responsive: false }}
+      style={{ width: "100%" }}
+      width={600}
       data={{
         labels: labels,
         datasets: [
@@ -57,6 +57,7 @@ function PieChart({ labels, counts }: { labels: string[]; counts: number[] }) {
 
 export function CountryPieChart({ data }: { data: Entry[] }) {
   const { set: countries, countsArray } = count(data, "country");
+
   return <PieChart labels={countries} counts={countsArray} />;
 }
 

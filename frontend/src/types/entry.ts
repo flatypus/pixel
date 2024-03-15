@@ -10,4 +10,10 @@ export type Entry = {
   isp: string;
   user_agent: string;
   date: string;
+  host: string;
+  pathname: string;
+};
+
+export type NestedObject = {
+  [key: string]: { subdir: NestedObject; pages: Entry[] };
 };

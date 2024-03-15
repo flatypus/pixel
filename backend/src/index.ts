@@ -2,7 +2,6 @@ import { config } from "dotenv";
 import { cors } from "@elysiajs/cors";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { Elysia } from "elysia";
-import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { sql, eq } from "drizzle-orm";
 import { views } from "./schema";
 import * as schema from "./schema";
@@ -57,7 +56,35 @@ app
       where: eq(views.path, id),
     });
 
-    return new Response(JSON.stringify(result), {
+    type NestedObject = {
+      [key: string]: { subdir: NestedObject; pages: typeof result };
+    };
+    let structure: NestedObject = {
+      "Unknown source": { subdir: {}, pages: [] },
+    };
+
+    for (const row of result) {
+      if (!row.host || !row.pathname) {
+        structure["Unknown source"].pages.push(row);
+        continue;
+      }
+      const parts = [row.host, ...row.pathname.split("/").filter(Boolean)];
+      let current = structure;
+
+      while (parts.length) {
+        const part = parts.shift() as string;
+        if (!current[part]) {
+          current[part] = { subdir: {}, pages: [] };
+        }
+        if (parts.length === 0) {
+          current[part].pages.push(row);
+          break;
+        }
+        current = current[part].subdir;
+      }
+    }
+
+    return new Response(JSON.stringify(structure), {
       headers: {
         "content-type": "application/json",
       },

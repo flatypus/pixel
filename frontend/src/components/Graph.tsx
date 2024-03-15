@@ -8,7 +8,7 @@ import {
   Tooltip,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Entry } from "../types/entry";
 
 function count(data: Entry[]) {
