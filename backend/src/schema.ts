@@ -11,6 +11,8 @@ export const views = pgTable("views", {
   longitude: text("longitude"),
   isp: text("isp"),
   user_agent: text("user_agent"),
+  host: text("host"),
+  pathname: text("pathname"),
   date: timestamp("date"),
 });
 

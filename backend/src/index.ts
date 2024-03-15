@@ -2,12 +2,13 @@ import { config } from "dotenv";
 import { cors } from "@elysiajs/cors";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { Elysia } from "elysia";
+import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { sql, eq } from "drizzle-orm";
+import { views } from "./schema";
 import * as schema from "./schema";
 import fetch from "node-fetch";
-import postgres from "postgres";
 import outdent from "outdent";
-import { views } from "./schema";
+import postgres from "postgres";
 
 config();
 
@@ -17,17 +18,22 @@ if (!DATABASE_URL) {
   throw new Error("DATABASE_URL is not defined");
 }
 
+const queryClient = postgres(DATABASE_URL);
+const db = drizzle(queryClient, { schema });
+await migrate(db, { migrationsFolder: "./drizzle" });
+await queryClient.end();
+
 const app = new Elysia();
 app.use(
   cors({
     origin: "*",
     methods: ["GET", "POST"],
-  })
+  }),
 );
 
 const transparentPngBuffer = Buffer.from(
   "89504e470d0a1a0a0000000d49484452000000010000000108060000001f15c489000000017352474200aece1ce90000000b494441541857636000020000050001aad5c8510000000049454e44ae426082",
-  "hex"
+  "hex",
 );
 
 type IPInfo = {
@@ -64,8 +70,11 @@ app
   })
 
   .get("/:id", async ({ params: { id }, query: { type }, request }) => {
+    const { host, pathname } = new URL(request.url);
     const queryClient = postgres(DATABASE_URL);
-    const db = drizzle(queryClient);
+    const db = drizzle(queryClient, {
+      schema,
+    });
 
     const user_agent = request.headers.get("user-agent");
     const ip_list = request.headers.get("x-forwarded-for")?.split(",");
@@ -84,6 +93,8 @@ app
       longitude: lon?.toString(),
       isp: isp,
       user_agent: user_agent,
+      host: host,
+      pathname: pathname,
       date: new Date(),
     });
 
@@ -95,7 +106,7 @@ app
       SET count = view_counts.count + 1
       WHERE view_counts.path = ${id}
       RETURNING count;
-    `
+    `,
     );
 
     if (type === "tracker") {
@@ -110,7 +121,7 @@ app
           headers: {
             "content-type": "text/html",
           },
-        }
+        },
       );
     }
 
@@ -123,5 +134,5 @@ app
   .listen(4000);
 
 console.log(
-  `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`
+  `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`,
 );
