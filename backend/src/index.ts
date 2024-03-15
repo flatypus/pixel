@@ -92,7 +92,13 @@ app
   })
 
   .get("/:id", async ({ params: { id }, query: { type }, request }) => {
-    const { host, pathname } = new URL(request.headers.get("referer") || "");
+    const referrer = request.headers.get("referer");
+    const { host, pathname } = referrer
+      ? new URL(referrer)
+      : {
+          host: "",
+          pathname: "",
+        };
 
     let result;
     if (!host.startsWith("localhost:")) {
