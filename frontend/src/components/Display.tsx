@@ -1,7 +1,7 @@
 import { CityPieChart } from "./Pie.tsx";
 import { Geo } from "./Geo.tsx";
 import { Graph } from "./Graph.tsx";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Entry, NestedObject } from "../types/entry";
 
 function ArrowDown() {
@@ -35,15 +35,14 @@ function PathList({
   path: string[];
   setPath: (path: string[]) => void;
 }) {
-  const [open, setOpen] = useState<boolean>(true);
+  const [open, setOpen] = useState<{ [key: string]: boolean }>({});
   return (
     <div className="ml-4 flex flex-col">
       {Object.keys(data).map((key) => (
         <div key={key} className="flex flex-col items-start">
           <button
             onClick={() => {
-              console.log(path, key);
-              setOpen(!open);
+              setOpen({ ...open, [key]: !open[key] });
               setPath(path.concat(key));
             }}
             className="flex flex-row items-center justify-between"
@@ -56,7 +55,7 @@ function PathList({
               <span
                 className="transition-all duration-300 ease-in-out"
                 style={{
-                  rotate: open ? "0deg" : "-90deg",
+                  rotate: open[key] ? "0deg" : "-90deg",
                 }}
               >
                 <ArrowDown />
@@ -64,7 +63,7 @@ function PathList({
             )}
           </button>
 
-          {data[key].pages.length > 0 && open && (
+          {data[key].pages.length > 0 && open[key] && (
             <>
               {Object.keys(data[key].subdir).length > 0 && (
                 <button
@@ -108,6 +107,35 @@ export default function Display({ data: all_data }: { data: NestedObject }) {
     return result;
   }, []);
 
+  const uniqueViewers = useMemo(() => {
+    let unique: { [key: string]: Entry } = {};
+    data.forEach((d) => {
+      unique[d.ip] = d;
+    });
+    return Object.values(unique).length;
+  }, [data]);
+
+  const uniqueDataByDay = useMemo(() => {
+    let unique: { [key: string]: Entry[] } = {};
+    data.forEach((d) => {
+      console.log(d.date);
+      const day = new Date(d.date).toDateString();
+      if (!(day in unique)) {
+        unique[day] = [d];
+        return;
+      }
+
+      if (!unique[day].find((e) => e.ip === d.ip)) {
+        unique[day].push(d);
+      }
+    });
+    let uniqueList: Entry[] = [];
+    for (const key in unique) {
+      uniqueList = uniqueList.concat(unique[key]);
+    }
+    return uniqueList;
+  }, [data]);
+
   useEffect(() => {
     if (!all_data) return;
     if (!path.length) setData(recursiveFlatten(all_data));
@@ -115,20 +143,20 @@ export default function Display({ data: all_data }: { data: NestedObject }) {
     let data = all_data;
     path.forEach((part, index) => {
       if (path[index + 1] === "/") {
-        console.log(data);
         data = {
           "/": {
             subdir: {},
             pages: data[part].pages,
           },
         };
+        return;
       }
       if (index === path.length - 1) {
         data = {
           [part]: data[part],
         };
       } else {
-        data = { ...data[part].subdir };
+        data = data[part].subdir;
       }
     });
 
@@ -137,10 +165,10 @@ export default function Display({ data: all_data }: { data: NestedObject }) {
 
   return (
     <h3 className="mb-4 text-2xl font-medium">
-      Total views: {data.length}
+      {path.length > 0 ? path.filter((e) => e != "/").join("/") : "All routes"}{" "}
+      - {data.length} total views and {uniqueViewers} unique viewers
       {data?.length > 0 &&
         ` since ${new Date(data.map((e) => e.date).at(0) ?? 0).toDateString()}`}
-      {path}
       <div className="flex flex-row">
         <div className="py-8 text-lg text-blue-500">
           <button onClick={() => setPath([])}>All routes</button>
@@ -158,6 +186,16 @@ export default function Display({ data: all_data }: { data: NestedObject }) {
               <h3>Views by city</h3>
 
               <CityPieChart data={data} />
+            </div>
+            <div className="p-8">
+              <h3>Unique views per day</h3>
+
+              <Graph data={uniqueDataByDay} />
+            </div>
+            <div className="p-8">
+              <h3>Unique views by city</h3>
+
+              <CityPieChart data={uniqueDataByDay} />
             </div>
           </div>
           <div className="p-8">
