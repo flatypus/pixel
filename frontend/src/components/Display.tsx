@@ -107,6 +107,20 @@ export default function Display({ data: all_data }: { data: NestedObject }) {
     return result;
   }, []);
 
+  const sortByCount = useCallback((data: Entry[]): Entry[] => {
+    let counts: { [key: string]: Entry[] } = {};
+    data.forEach((d) => {
+      if (d.city in counts) {
+        counts[d.city].push(d);
+      } else {
+        counts[d.city] = [d];
+      }
+    });
+    return Object.values(counts)
+      .sort((a, b) => b.length - a.length)
+      .flat();
+  }, []);
+
   const uniqueViewers = useMemo(() => {
     let unique: { [key: string]: Entry } = {};
     data.forEach((d) => {
@@ -118,7 +132,6 @@ export default function Display({ data: all_data }: { data: NestedObject }) {
   const uniqueDataByDay = useMemo(() => {
     let unique: { [key: string]: Entry[] } = {};
     data.forEach((d) => {
-      console.log(d.date);
       const day = new Date(d.date).toDateString();
       if (!(day in unique)) {
         unique[day] = [d];
@@ -133,12 +146,12 @@ export default function Display({ data: all_data }: { data: NestedObject }) {
     for (const key in unique) {
       uniqueList = uniqueList.concat(unique[key]);
     }
-    return uniqueList;
+    return sortByCount(uniqueList);
   }, [data]);
 
   useEffect(() => {
     if (!all_data) return;
-    if (!path.length) setData(recursiveFlatten(all_data));
+    if (!path.length) setData(sortByCount(recursiveFlatten(all_data)));
 
     let data = all_data;
     path.forEach((part, index) => {
@@ -160,7 +173,7 @@ export default function Display({ data: all_data }: { data: NestedObject }) {
       }
     });
 
-    setData(recursiveFlatten(data));
+    setData(sortByCount(recursiveFlatten(data)));
   }, [all_data, path]);
 
   return (

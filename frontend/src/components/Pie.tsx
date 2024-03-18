@@ -36,22 +36,35 @@ function PieChart({ labels, counts }: { labels: string[]; counts: number[] }) {
   if (!isRegistered) return <></>;
 
   return (
-    <Pie
-      className="w-full"
-      height={300}
-      options={{ responsive: false }}
-      style={{ width: "100%" }}
-      width={600}
-      data={{
-        labels: labels,
-        datasets: [
-          {
-            data: counts,
-            label: "Visits",
-          },
-        ],
-      }}
-    />
+    <div className="flex w-full flex-row">
+      <div>
+        <Pie
+          className="w-full"
+          height={600}
+          options={{ responsive: false }}
+          style={{ width: "100%" }}
+          width={600}
+          data={{
+            labels: labels,
+            datasets: [
+              {
+                data: counts,
+                label: "Visits",
+              },
+            ],
+          }}
+        />
+      </div>
+      <div
+        className={`flex h-[400px] w-full flex-col flex-wrap gap-x-4 text-sm`}
+      >
+        {labels.map((label, index) => (
+          <div key={index} className="flex flex-row items-center">
+            {label} - {counts[index]}
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
