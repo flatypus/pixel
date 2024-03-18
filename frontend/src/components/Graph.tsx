@@ -13,7 +13,6 @@ import type { Entry } from "../types/entry";
 
 function count(data: Entry[]) {
   let counts: Record<string, number> = {};
-  let dates = [];
   let countsArray = [];
   data.forEach((d: Entry) => {
     let date = d.date.split("T")[0];
@@ -24,12 +23,14 @@ function count(data: Entry[]) {
     }
   });
 
-  for (let date in Object.keys(counts).sort(
+  let dates = [];
+  for (let date of Object.keys(counts).sort(
     (a, b) => new Date(a).getSeconds() - new Date(b).getSeconds(),
   )) {
     dates.push(date);
     countsArray.push(counts[date]);
   }
+
   return { dates, countsArray };
 }
 

@@ -163,7 +163,7 @@ export default function Display({ data: all_data }: { data: NestedObject }) {
   }, [data, uniqueViewers]);
 
   const uniqueData = useMemo(() => {
-    if (unique) return data;
+    if (!unique) return data;
     let uniqueMap: { [key: string]: Entry[] } = {};
     data.forEach((d) => {
       const day = new Date(d.date).toDateString();
@@ -225,6 +225,7 @@ export default function Display({ data: all_data }: { data: NestedObject }) {
         <span>{titleString}</span>
         <span className="flex flex-row items-center gap-x-2">
           <p>Unique: </p>
+          {unique ? "true" : "false"}
           {switchComponent}
         </span>
       </div>
@@ -236,21 +237,19 @@ export default function Display({ data: all_data }: { data: NestedObject }) {
           <PathList data={all_data} path={[]} setPath={setPath} />
         </div>
         <div>
-          <div className="mb-4 grid w-full grid-cols-2 gap-x-4">
+          <div className="mb-4 flex w-full flex-row gap-x-4">
             <div>
               <h3>{uniqueText("Views per day")}</h3>
               <Graph data={uniqueData} />
             </div>
-          </div>
-          <div className="flex flex-row gap-x-4">
             <div>
               <h3>{uniqueText("Views by city")}</h3>
               <CityPieChart data={uniqueData} />
             </div>
-            <div className="flex-1">
-              <h3>{uniqueText("Views by country")}</h3>
-              <Geo data={uniqueData} />
-            </div>
+          </div>
+          <div>
+            <h3>{uniqueText("Views by country")}</h3>
+            <Geo data={uniqueData} />
           </div>
         </div>
       </div>
