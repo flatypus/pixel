@@ -23,7 +23,10 @@ function count(data: Entry[]) {
       counts[date] = 1;
     }
   });
-  for (let date in counts) {
+
+  for (let date in Object.keys(counts).sort(
+    (a, b) => new Date(a).getSeconds() - new Date(b).getSeconds(),
+  )) {
     dates.push(date);
     countsArray.push(counts[date]);
   }

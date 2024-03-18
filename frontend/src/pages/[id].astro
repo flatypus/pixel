@@ -5,9 +5,11 @@ import Display from "../components/Display";
 
 const { id } = Astro.params;
 
-const all_data: NestedObject = await (
-  await fetch(`${import.meta.env.PUBLIC_API_URL}/views/${id}`)
-).json();
+const all_data: NestedObject = await (async () => {
+  const request = await fetch(`${import.meta.env.PUBLIC_API_URL}/views/${id}`);
+  if (!request.ok) return {};
+  return await request.json();
+})();
 ---
 
 <Layout title={`pixel | ${id}`}>

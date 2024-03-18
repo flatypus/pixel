@@ -36,7 +36,7 @@ function PieChart({ labels, counts }: { labels: string[]; counts: number[] }) {
   if (!isRegistered) return <></>;
 
   return (
-    <div className="flex w-full flex-row">
+    <div className="flex w-[400px] flex-row">
       <div>
         <Pie
           className="w-full"
@@ -55,13 +55,9 @@ function PieChart({ labels, counts }: { labels: string[]; counts: number[] }) {
           }}
         />
       </div>
-      <div
-        className={`flex h-[400px] w-full flex-col flex-wrap gap-x-4 text-sm`}
-      >
+      <div className="flex h-[400px] w-full flex-col flex-wrap gap-x-4 text-[0.5rem] leading-3">
         {labels.map((label, index) => (
-          <div key={index} className="flex flex-row items-center">
-            {label} - {counts[index]}
-          </div>
+          <span>{`${label} - ${counts[index]}`}</span>
         ))}
       </div>
     </div>

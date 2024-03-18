@@ -47,7 +47,7 @@ function PathList({
             }}
             className="flex flex-row items-center justify-between"
           >
-            <span>
+            <span className="whitespace-nowrap">
               {path.length > 0 && "/"}
               {key}
             </span>
@@ -90,9 +90,27 @@ function PathList({
   );
 }
 
+function useSwitch() {
+  const [unique, setUnique] = useState<boolean>(false);
+  const switchComponent = (
+    <div
+      className="relative h-[27px] w-[52px] cursor-pointer rounded-full border-[1px] border-gray-500 transition-all duration-300 ease-in-out"
+      style={{ background: unique ? "rgb(209 213 219)" : "transparent" }}
+      onClick={() => setUnique((unique) => !unique)}
+    >
+      <button
+        className="absolute top-0 m-[1px] h-[23px] w-[23px] rounded-full border-[1px] bg-white transition-all duration-300 ease-in-out"
+        style={unique ? { left: "50%" } : { left: "0%" }}
+      ></button>
+    </div>
+  );
+  return [switchComponent, unique];
+}
+
 export default function Display({ data: all_data }: { data: NestedObject }) {
   const [data, setData] = useState<Entry[]>([]);
   const [path, setPath] = useState<string[]>([]);
+  const [switchComponent, unique] = useSwitch();
 
   const recursiveFlatten = useCallback((obj: NestedObject) => {
     let result: Entry[] = [];
@@ -129,25 +147,50 @@ export default function Display({ data: all_data }: { data: NestedObject }) {
     return Object.values(unique).length;
   }, [data]);
 
-  const uniqueDataByDay = useMemo(() => {
-    let unique: { [key: string]: Entry[] } = {};
+  const titleString = useMemo(() => {
+    let str = "";
+    if (path.length > 0) {
+      str += path.filter((e) => e != "/").join("/");
+    } else {
+      str += "All routes";
+    }
+    str += ` - ${data.length} total views and ${uniqueViewers} unique viewers`;
+    if (data?.length > 0) {
+      const date = new Date(data.map((e) => e.date).at(0) ?? 0).toDateString();
+      str += ` since ${date}`;
+    }
+    return str;
+  }, [data, uniqueViewers]);
+
+  const uniqueData = useMemo(() => {
+    if (unique) return data;
+    let uniqueMap: { [key: string]: Entry[] } = {};
     data.forEach((d) => {
       const day = new Date(d.date).toDateString();
-      if (!(day in unique)) {
-        unique[day] = [d];
+      if (!(day in uniqueMap)) {
+        uniqueMap[day] = [d];
         return;
       }
 
-      if (!unique[day].find((e) => e.ip === d.ip)) {
-        unique[day].push(d);
+      if (!uniqueMap[day].find((e) => e.ip === d.ip)) {
+        uniqueMap[day].push(d);
       }
     });
     let uniqueList: Entry[] = [];
-    for (const key in unique) {
-      uniqueList = uniqueList.concat(unique[key]);
+    for (const key in uniqueMap) {
+      uniqueList = uniqueList.concat(uniqueMap[key]);
     }
     return sortByCount(uniqueList);
-  }, [data]);
+  }, [data, unique]);
+
+  const uniqueText = useCallback(
+    (text: string) => (
+      <>{`${unique ? "Unique " + text[0].toLowerCase() : text[0]}${text.slice(
+        1,
+      )}`}</>
+    ),
+    [unique],
+  );
 
   useEffect(() => {
     if (!all_data) return;
@@ -178,42 +221,36 @@ export default function Display({ data: all_data }: { data: NestedObject }) {
 
   return (
     <h3 className="mb-4 text-2xl font-medium">
-      {path.length > 0 ? path.filter((e) => e != "/").join("/") : "All routes"}{" "}
-      - {data.length} total views and {uniqueViewers} unique viewers
-      {data?.length > 0 &&
-        ` since ${new Date(data.map((e) => e.date).at(0) ?? 0).toDateString()}`}
+      <div className="flex w-full flex-row justify-between pr-4">
+        <span>{titleString}</span>
+        <span className="flex flex-row items-center gap-x-2">
+          <p>Unique: </p>
+          {switchComponent}
+        </span>
+      </div>
       <div className="flex flex-row">
-        <div className="py-8 text-lg text-blue-500">
-          <button onClick={() => setPath([])}>All routes</button>
-
+        <div className="mr-4 text-lg text-blue-500">
+          <button className="whitespace-nowrap" onClick={() => setPath([])}>
+            All routes
+          </button>
           <PathList data={all_data} path={[]} setPath={setPath} />
         </div>
         <div>
-          <div className="grid w-full grid-cols-2">
-            <div className="p-8">
-              <h3>Views per day</h3>
-
-              <Graph data={data} />
-            </div>
-            <div className="p-8">
-              <h3>Views by city</h3>
-
-              <CityPieChart data={data} />
-            </div>
-            <div className="p-8">
-              <h3>Unique views per day</h3>
-
-              <Graph data={uniqueDataByDay} />
-            </div>
-            <div className="p-8">
-              <h3>Unique views by city</h3>
-
-              <CityPieChart data={uniqueDataByDay} />
+          <div className="mb-4 grid w-full grid-cols-2 gap-x-4">
+            <div>
+              <h3>{uniqueText("Views per day")}</h3>
+              <Graph data={uniqueData} />
             </div>
           </div>
-          <div className="p-8">
-            <h3>Views by country</h3>
-            <Geo data={data} />
+          <div className="flex flex-row gap-x-4">
+            <div>
+              <h3>{uniqueText("Views by city")}</h3>
+              <CityPieChart data={uniqueData} />
+            </div>
+            <div className="flex-1">
+              <h3>{uniqueText("Views by country")}</h3>
+              <Geo data={uniqueData} />
+            </div>
           </div>
         </div>
       </div>
