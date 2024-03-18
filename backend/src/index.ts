@@ -109,7 +109,7 @@ app
 
       const user_agent = request.headers.get("user-agent");
       const ip_list = request.headers.get("x-forwarded-for")?.split(",");
-      const ip = ip_list?.pop()?.trim() || "";
+      const ip = ip_list?.at(0)?.trim() || "";
       const ip_info = await fetch(`http://ip-api.com/json/${ip}`);
       const ip_info_json = (await ip_info.json()) as IPInfo;
       const { country, region, city, lat, lon, isp } = ip_info_json;
