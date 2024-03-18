@@ -12,7 +12,8 @@ import {
   SizeScale,
 } from "chartjs-chart-geo";
 
-const PROJECTION = "mercator";
+// 'azimuthalEqualArea' | 'azimuthalEquidistant' | 'gnomonic' | 'orthographic' | 'stereographic' | 'equalEarth' | 'albers' | 'albersUsa' | 'conicConformal' | 'conicEqualArea' | 'conicEquidistant' | 'equirectangular' | 'mercator' | 'transverseMercator' | 'naturalEarth1';
+const PROJECTION = "naturalEarth1";
 
 const find = (country: string) => {
   for (let i = 0; i < COUNTRIES.length; i++) {
@@ -53,6 +54,9 @@ export function Geo({ data }: { data: Entry[] }) {
   const cityCanvasRef = useRef<HTMLCanvasElement>(null);
   const [isRegistered, setIsRegistered] = useState(false);
   const [countryFeatures, setCountryFeatures] = useState<any>(null);
+  const [countryChart, setCountryChart] =
+    useState<ChartJS<"choropleth"> | null>(null);
+  const [cityChart, setCityChart] = useState<ChartJS<"bubbleMap"> | null>(null);
 
   const counts = useMemo(() => {
     return countDict(data, "country");
@@ -66,7 +70,7 @@ export function Geo({ data }: { data: Entry[] }) {
         value: counts[find(d.properties.name)]?.length || 0,
       };
     });
-  }, [countryFeatures]);
+  }, [countryFeatures, counts]);
 
   const cities = useMemo(() => countDict(data, "city"), [data]);
 
@@ -103,8 +107,17 @@ export function Geo({ data }: { data: Entry[] }) {
     if (!cityCanvasContext) return;
 
     if (!countryFeatures) return;
+    if (!countryCanvas || !cityCanvas) return;
 
-    new ChartJS(countryCanvasContext, {
+    if (countryChart) countryChart.destroy();
+    if (cityChart) cityChart.destroy();
+
+    countryCanvas.width = countryCanvas.clientWidth;
+    countryCanvas.height = countryCanvas.clientHeight;
+    cityCanvas.width = cityCanvas.clientWidth;
+    cityCanvas.height = cityCanvas.clientHeight;
+
+    const newCountryChart = new ChartJS(countryCanvasContext, {
       type: "choropleth",
       data: {
         labels: COUNTRIES,
@@ -131,6 +144,8 @@ export function Geo({ data }: { data: Entry[] }) {
       },
     });
 
+    setCountryChart(newCountryChart);
+
     const cityLatLongMap = Object.keys(cities).map((city) => {
       return {
         name: city,
@@ -140,7 +155,7 @@ export function Geo({ data }: { data: Entry[] }) {
       };
     });
 
-    new ChartJS(cityCanvasContext, {
+    const newCityChart = new ChartJS(cityCanvasContext, {
       type: "bubbleMap",
       data: {
         labels: Object.keys(cities),
@@ -166,7 +181,9 @@ export function Geo({ data }: { data: Entry[] }) {
         },
       },
     });
-  }, [countryFeatures]);
+
+    setCityChart(newCityChart);
+  }, [countryFeatures, countries, cities]);
 
   if (!isRegistered) return <></>;
 
@@ -184,7 +201,7 @@ export function Geo({ data }: { data: Entry[] }) {
         ></canvas>
       </div>
 
-      <div className="flex h-[400px] flex-col flex-wrap gap-x-4 text-[0.5rem] leading-3">
+      <div className="flex h-[400px] flex-col flex-wrap gap-x-4 text-sm">
         {counts &&
           Object.keys(counts)
             .sort((a, b) => counts[b].length - counts[a].length)
