@@ -11,6 +11,7 @@ import {
   ProjectionScale,
   SizeScale,
 } from "chartjs-chart-geo";
+import { percentageToRgb } from "../lib/helpers";
 
 // 'azimuthalEqualArea' | 'azimuthalEquidistant' | 'gnomonic' | 'orthographic' | 'stereographic' | 'equalEarth' | 'albers' | 'albersUsa' | 'conicConformal' | 'conicEqualArea' | 'conicEquidistant' | 'equirectangular' | 'mercator' | 'transverseMercator' | 'naturalEarth1';
 const PROJECTION = "naturalEarth1";
@@ -146,26 +147,47 @@ export function Geo({ data }: { data: Entry[] }) {
 
     setCountryChart(newCountryChart);
 
-    const cityLatLongMap = Object.keys(cities).map((city) => {
-      return {
-        name: city,
-        longitude: cities[city][0].longitude,
-        latitude: cities[city][0].latitude,
-        value: cities[city].length,
-      };
-    });
+    const { cityLatLongMap, labels, colors } = (() => {
+      let cityLatLongMap: {
+        name: string;
+        longitude: number;
+        latitude: number;
+        value: number;
+      }[] = [];
+      let labels: string[] = [];
+      let colors: string[] = [];
+
+      const maximum = Math.max(...Object.values(cities).map((d) => d.length));
+
+      Object.entries(cities).map(([city, cityData]) => {
+        const str = percentageToRgb(
+          Math.log(cityData.length) / Math.log(maximum),
+        );
+        cityLatLongMap.push({
+          name: city,
+          longitude: cityData[0].longitude,
+          latitude: cityData[0].latitude,
+          value: cityData.length,
+        });
+        labels.push(city);
+        colors.push(str);
+      });
+
+      return { cityLatLongMap, labels, colors };
+    })();
 
     const newCityChart = new ChartJS(cityCanvasContext, {
       type: "bubbleMap",
       data: {
-        labels: Object.keys(cities),
+        labels: labels,
         datasets: [
           {
-            backgroundColor: "steelblue",
             data: cityLatLongMap,
+            backgroundColor: colors,
           },
         ],
       },
+
       options: {
         showOutline: false,
         plugins: {
