@@ -30,6 +30,7 @@ export const sortByCount = (data: Entry[]): Entry[] => {
 type RGB = { r: number; g: number; b: number };
 
 export const percentageToRgb = (val: number) => {
+  val = val || 0;
   const min = 0;
   const max = 1;
   var minHue = 240,
