@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { Chart as ChartJS } from "chart.js";
 import type { Entry } from "../types/entry";
 import { COUNTRIES } from "../lib/countries";
@@ -12,27 +12,7 @@ import {
   SizeScale,
 } from "chartjs-chart-geo";
 
-const count = (data: Entry[]) => {
-  let counts: Record<string, number> = {};
-
-  const find = (country: string) => {
-    for (let i = 0; i < COUNTRIES.length; i++) {
-      if (COUNTRIES[i].startsWith(country)) {
-        return COUNTRIES[i];
-      }
-    }
-    return country;
-  };
-
-  data.forEach((d: Entry) => {
-    let country = find(d.country);
-    if (country in counts) {
-      counts[country] += 1;
-    } else {
-      counts[country] = 1;
-    }
-  });
-
+const count = (counts: Record<string, number>) => {
   const countries = fetch("https://unpkg.com/world-atlas/countries-50m.json")
     .then((r) => r.json())
     .then((data) => {
@@ -50,7 +30,30 @@ const count = (data: Entry[]) => {
 export function Geo({ data }: { data: Entry[] }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isRegistered, setIsRegistered] = useState(false);
-  const { countries } = count(data);
+  const counts = useMemo(() => {
+    let counts: Record<string, number> = {};
+
+    const find = (country: string) => {
+      for (let i = 0; i < COUNTRIES.length; i++) {
+        if (COUNTRIES[i].startsWith(country)) {
+          return COUNTRIES[i];
+        }
+      }
+      return country;
+    };
+
+    data.forEach((d: Entry) => {
+      let country = find(d.country);
+      if (country in counts) {
+        counts[country] += 1;
+      } else {
+        counts[country] = 1;
+      }
+    });
+    return counts;
+  }, [data]);
+
+  const { countries } = count(counts);
 
   useEffect(() => {
     ChartJS.register(
@@ -102,8 +105,27 @@ export function Geo({ data }: { data: Entry[] }) {
   if (!isRegistered) return <></>;
 
   return (
-    <div className="w-full">
-      <canvas ref={canvasRef}></canvas>
+    <div className="flex w-full flex-row">
+      <div className="w-full flex-1">
+        <canvas ref={canvasRef}></canvas>
+      </div>
+
+      <div className={`flex h-[400px] flex-col flex-wrap gap-x-4 text-sm`}>
+        {/* {labels.map((label, index) => (
+          <div key={index} className="flex flex-row items-center">
+            {label} - {counts[index]}
+          </div>
+
+        ))} */}
+        {counts &&
+          Object.keys(counts)
+            .sort((a, b) => counts[b] - counts[a])
+            .map((key, index) => (
+              <div key={index} className="flex flex-row items-center">
+                {key} - {counts[key]}
+              </div>
+            ))}
+      </div>
     </div>
   );
 }
