@@ -46,7 +46,7 @@ function PieChart({ labels, counts }: { labels: string[]; counts: number[] }) {
           style={{ width: "100%" }}
           width={500}
           data={{
-            labels: labels,
+            labels: labels.slice(0, 20),
             datasets: [
               {
                 data: counts,

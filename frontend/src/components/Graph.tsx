@@ -24,12 +24,11 @@ function count(data: Entry[]) {
   });
 
   let dates = [];
-  for (let date of Object.keys(counts).sort(
-    (a, b) => new Date(a).getSeconds() - new Date(b).getSeconds(),
-  )) {
+  for (let date of Object.keys(counts).sort()) {
     dates.push(date);
     countsArray.push(counts[date]);
   }
+  console.log(dates, countsArray, Object.keys(counts).sort());
 
   return { dates, countsArray };
 }
