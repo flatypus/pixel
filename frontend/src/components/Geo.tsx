@@ -17,9 +17,9 @@ import { percentageToRgb } from "../lib/helpers";
 const PROJECTION = "naturalEarth1";
 
 const find = (country: string) => {
-  for (let i = 0; i < COUNTRIES.length; i++) {
-    if (COUNTRIES[i].startsWith(country)) {
-      return COUNTRIES[i];
+  for (let c of COUNTRIES) {
+    if (c.startsWith(country)) {
+      return c;
     }
   }
   return country;
@@ -60,7 +60,10 @@ export function Geo({ data }: { data: Entry[] }) {
   const [cityChart, setCityChart] = useState<ChartJS<"bubbleMap"> | null>(null);
 
   const counts = useMemo(() => {
-    return countDict(data, "country");
+    return countDict(
+      data.map((value) => ({ ...value, country: find(value.country) })),
+      "country",
+    );
   }, [data]);
 
   const countries = useMemo(() => {
@@ -68,7 +71,7 @@ export function Geo({ data }: { data: Entry[] }) {
     return countryFeatures.map((d: any) => {
       return {
         feature: d,
-        value: counts[find(d.properties.name)]?.length || 0,
+        value: counts[d.properties.name]?.length || 0,
       };
     });
   }, [countryFeatures, counts]);
@@ -118,6 +121,8 @@ export function Geo({ data }: { data: Entry[] }) {
     cityCanvas.width = cityCanvas.clientWidth;
     cityCanvas.height = cityCanvas.clientHeight;
 
+    console.log(countries);
+
     const newCountryChart = new ChartJS(countryCanvasContext, {
       type: "choropleth",
       data: {
@@ -126,6 +131,11 @@ export function Geo({ data }: { data: Entry[] }) {
           {
             label: "Countries",
             data: countries,
+            backgroundColor: countries.map((d: any) => {
+              return d.value
+                ? percentageToRgb(Math.log(d.value) / Math.log(1000), 40)
+                : "rgba(0,0,0,0)";
+            }),
           },
         ],
       },
@@ -187,9 +197,14 @@ export function Geo({ data }: { data: Entry[] }) {
           },
         ],
       },
-
       options: {
         showOutline: false,
+        elements: {
+          point: {
+            borderWidth: 1,
+            borderColor: "#00000044",
+          },
+        },
         plugins: {
           legend: {
             display: false,

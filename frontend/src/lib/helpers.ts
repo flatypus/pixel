@@ -27,16 +27,15 @@ export const sortByCount = (data: Entry[]): Entry[] => {
     .flat();
 };
 
-type RGB = { r: number; g: number; b: number };
-
-export const percentageToRgb = (val: number) => {
+export const percentageToRgb = (val: number, opacity = 100) => {
   val = val || 0;
   const min = 0;
   const max = 1;
   var minHue = 240,
     maxHue = 0;
   var curPercent = (val - min) / (max - min);
-  var colString =
-    "hsl(" + (curPercent * (maxHue - minHue) + minHue) + " 100%  50% / 80%)";
+  var colString = `hsl(${
+    curPercent * (maxHue - minHue) + minHue
+  } 100%  50% / ${opacity}%)`;
   return colString;
 };
