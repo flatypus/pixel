@@ -16,6 +16,7 @@ export const recursiveFlatten = (obj: NestedObject) => {
 export const sortByCount = (data: Entry[]): Entry[] => {
   let counts: { [key: string]: Entry[] } = {};
   data.forEach((d) => {
+    if (!d.ip || d.ip === "127.0.0.01" || !d.country) return;
     if (d.city in counts) {
       counts[d.city].push(d);
     } else {
