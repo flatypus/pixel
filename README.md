@@ -14,7 +14,10 @@ But how would you know who or what website is requesting the image? Simple: on e
 
 You could even go a step further! By specifically adding `<img src="https://pixel.flatypus.me/[id]" referrerpolicy="unsafe-url">` to your page, you'll also be able to get the specific full URL, including sorting by paths, of the page that requested the image.
 
-![Example usage:](https://github.com/flatypus/pixel/assets/68029599/e031b7b5-9bc8-4c98-bc64-a026bc923308)
-
-
 ![](https://pixel.flatypus.me/a16be4b2-ae3b-40f7-a946-8c8eaf540670?type=tracker)
+<img width="1487" alt="image" src="https://github.com/flatypus/pixel/assets/68029599/2751fb76-e486-4cf9-ab71-1d2225974d97">
+
+<img width="1243" alt="image" src="https://github.com/flatypus/pixel/assets/68029599/a79e062d-ce4e-4a53-9c20-1373c51c3c85">
+
+<img width="1243" alt="image" src="https://github.com/flatypus/pixel/assets/68029599/473c4734-5ee9-479a-a230-9245579eabae">
+
