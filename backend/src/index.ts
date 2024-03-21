@@ -1,6 +1,6 @@
 import { config } from "dotenv";
 import { cors } from "@elysiajs/cors";
-import { drizzle } from "drizzle-orm/postgres-js";
+import { PostgresJsDatabase, drizzle } from "drizzle-orm/postgres-js";
 import { Elysia } from "elysia";
 import { sql, eq } from "drizzle-orm";
 import { views } from "./schema";
@@ -12,6 +12,7 @@ import postgres from "postgres";
 config();
 
 const DATABASE_URL = process.env.DATABASE_URL;
+const BLACKLIST = ["localhost:", "127.0.0.1"];
 
 if (!DATABASE_URL) {
   throw new Error("DATABASE_URL is not defined");
@@ -47,13 +48,22 @@ type IPInfo = {
   as: string;
 };
 
+async function queryAndRelease<T>(
+  run: (db: PostgresJsDatabase<typeof schema>) => Promise<T>,
+) {
+  const queryClient = postgres(DATABASE_URL!);
+  const db = drizzle(queryClient, { schema });
+  const result = await run(db);
+  await queryClient.end();
+  return result;
+}
+
 app
   .get("/views/:id", async ({ params: { id } }) => {
-    const queryClient = postgres(DATABASE_URL);
-    const db = drizzle(queryClient, { schema });
-
-    const result = await db.query.views.findMany({
-      where: eq(views.path, id),
+    const result = await queryAndRelease((db) => {
+      return db.query.views.findMany({
+        where: eq(views.path, id),
+      });
     });
 
     type NestedObject = {
@@ -101,12 +111,7 @@ app
         };
 
     let result;
-    if (!host.startsWith("localhost:")) {
-      const queryClient = postgres(DATABASE_URL);
-      const db = drizzle(queryClient, {
-        schema,
-      });
-
+    if (!BLACKLIST.some((h) => host.startsWith(h))) {
       const user_agent = request.headers.get("user-agent");
       const ip_list = request.headers.get("x-forwarded-for")?.split(",");
       const ip = ip_list?.at(0)?.trim() || "";
@@ -114,31 +119,35 @@ app
       const ip_info_json = (await ip_info.json()) as IPInfo;
       const { country, region, city, lat, lon, isp } = ip_info_json;
 
-      await db.insert(views).values({
-        path: id,
-        ip: ip,
-        country: country,
-        region: region,
-        city: city,
-        latitude: lat?.toString(),
-        longitude: lon?.toString(),
-        isp: isp,
-        user_agent: user_agent,
-        host: host,
-        pathname: pathname,
-        date: new Date(),
-      });
+      result = await queryAndRelease<
+        postgres.RowList<Record<string, number>[]>
+      >(async (db) => {
+        await db.insert(views).values({
+          path: id,
+          ip: ip,
+          country: country,
+          region: region,
+          city: city,
+          latitude: lat?.toString(),
+          longitude: lon?.toString(),
+          isp: isp,
+          user_agent: user_agent,
+          host: host,
+          pathname: pathname,
+          date: new Date(),
+        });
 
-      result = await db.execute(
-        sql`
-      INSERT INTO view_counts (path, count)
-      VALUES (${id}, 1)
-      ON CONFLICT (path) DO UPDATE
-      SET count = view_counts.count + 1
-      WHERE view_counts.path = ${id}
-      RETURNING count;
-    `,
-      );
+        return await db.execute(
+          sql`
+            INSERT INTO view_counts (path, count)
+            VALUES (${id}, 1)
+            ON CONFLICT (path) DO UPDATE
+            SET count = view_counts.count + 1
+            WHERE view_counts.path = ${id}
+            RETURNING count;
+          `,
+        );
+      });
     }
 
     if (type === "tracker") {
