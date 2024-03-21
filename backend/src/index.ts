@@ -59,6 +59,8 @@ async function queryAndRelease<T>(
 }
 
 app
+  .get("/", () => new Response("Hi! Pixel server is up :)"))
+  .get("/.well-known/health-check", () => new Response("OK"))
   .get("/views/:id", async ({ params: { id } }) => {
     const result = await queryAndRelease((db) => {
       return db.query.views.findMany({
