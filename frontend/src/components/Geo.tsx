@@ -121,8 +121,6 @@ export function Geo({ data }: { data: Entry[] }) {
     cityCanvas.width = cityCanvas.clientWidth;
     cityCanvas.height = cityCanvas.clientHeight;
 
-    console.log(countries);
-
     const newCountryChart = new ChartJS(countryCanvasContext, {
       type: "choropleth",
       data: {

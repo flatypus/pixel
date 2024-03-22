@@ -28,7 +28,6 @@ function count(data: Entry[]) {
     dates.push(date);
     countsArray.push(counts[date]);
   }
-  console.log(dates, countsArray, Object.keys(counts).sort());
 
   return { dates, countsArray };
 }

@@ -57,9 +57,10 @@ function PieChart({ labels, counts }: { labels: string[]; counts: number[] }) {
         />
       </div>
       <div className="flex h-[300px] w-full flex-col flex-wrap gap-x-4 text-[0.5rem] leading-3">
-        {labels.map((label, index) => (
-          <span>{`${label} - ${counts[index]}`}</span>
-        ))}
+        {labels.map((label, index) => {
+          const tag = `${label} - ${counts[index]}`;
+          return <span key={tag}>{tag}</span>;
+        })}
       </div>
     </div>
   );
