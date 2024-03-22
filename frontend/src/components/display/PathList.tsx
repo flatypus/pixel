@@ -5,7 +5,7 @@ function ArrowDown() {
   return (
     <svg
       className="mt-1"
-      enable-background="new 0 0 960 560"
+      enableBackground="new 0 0 960 560"
       fill="#FFFFFF"
       id="Capa_1"
       version="1.1"
