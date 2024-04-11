@@ -223,16 +223,16 @@ export function Geo({ data }: { data: Entry[] }) {
   if (!isRegistered) return <></>;
 
   return (
-    <div className="flex w-full flex-row gap-x-4">
-      <div className="relative w-full flex-1 grid-cols-1 rounded-lg bg-white">
+    <div className="w-full">
+      <div className="relative w-full flex-1 grid-cols-1 rounded-lg bg-white mb-4">
         <canvas
           ref={cityCanvasRef}
           className="absolute top-0"
-          style={{ width: "100%", height: "100%" }}
+          style={{ width: "100%", height: "500px" }}
         ></canvas>
         <canvas
           ref={countryCanvasRef}
-          style={{ width: "100%", height: "100%" }}
+          style={{ width: "100%", height: "500px" }}
         ></canvas>
       </div>
 
