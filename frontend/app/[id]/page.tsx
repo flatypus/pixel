@@ -10,6 +10,11 @@ config();
 
 const PUBLIC_API_URL = env.NEXT_PUBLIC_API_URL;
 
+export async function generateMetadata({ params }: { params: { id: string } }) {
+  return {
+    title: `Tracking: ${params.id}`,
+  };
+}
 export default function Page({ params }: { params: { id: string } }) {
   const [all_data, setAllData] = useState<NestedObject>({});
   const { id } = params;

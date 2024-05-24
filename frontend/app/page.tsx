@@ -1,17 +1,15 @@
-import Head from "next/head";
 import { v4 as uuidv4 } from "uuid";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "pixel | a simple view tracker",
+};
 
 export default function Page() {
   const uuid = uuidv4();
   return (
-    <main
-      className="w-[800px] max-w-[calc(100%-2rem)] p-8 text-2xl text-white"
-      style={{ margin: "auto" }}
-    >
-      <Head>
-        <title>pixel | a simple view tracker</title>
-      </Head>
-      <h1>pixel | a simple view tracker</h1>
+    <main className="m-auto w-[800px] max-w-[calc(100%-2rem)] p-8 text-2xl text-white">
+      <h1 className="mb-4">pixel | a simple view tracker</h1>
       <p>
         Embed{" "}
         <a href={`https://pixel.flatypus.me/${uuid}`} target="_blank">
