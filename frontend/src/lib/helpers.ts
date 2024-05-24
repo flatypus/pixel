@@ -16,7 +16,6 @@ export const recursiveFlatten = (obj: NestedObject) => {
 export const sortByCount = (data: Entry[]): Entry[] => {
   let counts: { [key: string]: Entry[] } = {};
   data.forEach((d) => {
-    if (!d.ip || d.ip === "127.0.0.01" || !d.country) return;
     if (d.city in counts) {
       counts[d.city].push(d);
     } else {
@@ -39,4 +38,25 @@ export const percentageToRgb = (val: number, opacity = 100) => {
     curPercent * (maxHue - minHue) + minHue
   } 100%  50% / ${opacity}%)`;
   return colString;
+};
+
+export const count = (data: Entry[], key: keyof Entry) => {
+  let counts: Record<string, number> = {};
+  let set = [];
+  let countsArray = [];
+  data.forEach((d: Entry) => {
+    let item = d[key];
+    if (item in counts) {
+      counts[item] += 1;
+    } else {
+      counts[item] = 1;
+    }
+  });
+
+  for (let item in counts) {
+    set.push(item);
+    countsArray.push(counts[item]);
+  }
+
+  return { set, countsArray };
 };

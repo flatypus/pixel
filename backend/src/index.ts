@@ -76,6 +76,7 @@ app
     };
 
     for (const row of result) {
+      if (!row.ip || row.ip === "127.0.0.01" || !row.country) continue;
       if (!row.host || !row.pathname) {
         structure["Unknown source"].pages.push(row);
         continue;

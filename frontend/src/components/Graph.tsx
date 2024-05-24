@@ -8,7 +8,7 @@ import {
   Tooltip,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import type { Entry } from "../types/entry";
 
 function count(data: Entry[]) {
@@ -52,9 +52,9 @@ export function Graph({ data }: { data: any }) {
 
   return (
     <Line
-      width={600}
+      width={900}
       height={300}
-      style={{ width: "100%" }}
+      style={{ width: "100%", marginBlockStart: "2rem" }}
       className="w-full"
       data={{
         labels: dates,

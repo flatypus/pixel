@@ -223,8 +223,8 @@ export function Geo({ data }: { data: Entry[] }) {
   if (!isRegistered) return <></>;
 
   return (
-    <div className="w-full">
-      <div className="relative w-full flex-1 grid-cols-1 rounded-lg bg-white mb-4">
+    <div className="mt-4 w-full">
+      <div className="relative mb-4 w-full flex-1 grid-cols-1 rounded-sm bg-white">
         <canvas
           ref={cityCanvasRef}
           className="absolute top-0"
@@ -234,17 +234,6 @@ export function Geo({ data }: { data: Entry[] }) {
           ref={countryCanvasRef}
           style={{ width: "100%", height: "500px" }}
         ></canvas>
-      </div>
-
-      <div className="flex h-[400px] flex-col flex-wrap gap-x-4 text-sm">
-        {counts &&
-          Object.keys(counts)
-            .sort((a, b) => counts[b].length - counts[a].length)
-            .map((key, index) => (
-              <div key={index} className="flex flex-row items-center">
-                {key} - {counts[key].length}
-              </div>
-            ))}
       </div>
     </div>
   );
