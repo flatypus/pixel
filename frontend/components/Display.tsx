@@ -65,8 +65,8 @@ function Graphs({ data }: { data: Entry[] }) {
         </button>
       </div>
       {detailedStats ? (
-        <div>
-          <span className="text-xl font-medium">Web Traffic by City</span>
+        <div className="p-4">
+          <span className="mb-4 text-xl font-medium">Web Traffic by City</span>
           <div
             style={{
               scrollbarWidth: "thin",
