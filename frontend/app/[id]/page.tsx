@@ -3,7 +3,10 @@
 import { env } from "process";
 import { NestedObject } from "@/types/entry";
 import { useEffect, useState } from "react";
+import { config } from "dotenv";
 import Display from "@/components/Display";
+
+config();
 
 const PUBLIC_API_URL = env.NEXT_PUBLIC_API_URL;
 
@@ -13,7 +16,13 @@ export default function Page({ params }: { params: { id: string } }) {
 
   useEffect(() => {
     if (!id) return;
-    fetch(`${PUBLIC_API_URL}/views/${id}`)
+    fetch(`${PUBLIC_API_URL ?? "http://localhost:4000"}/views/${id}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      mode: "cors",
+    })
       .then((r) => r.json())
       .then((data) => setAllData(data));
   }, [id]);

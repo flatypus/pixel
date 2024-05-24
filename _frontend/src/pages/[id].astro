@@ -16,17 +16,18 @@ const all_data: NestedObject = await (async () => {
   <main>
     <h1>Tracking: {id}</h1>
     <Display data={all_data} client:only="react" />
-    <style>
-      h1 {
-        font-size: 2rem;
-        font-weight: 700;
-        margin-bottom: 1rem;
-      }
-
-      main {
-        color: white;
-        padding: 40px;
-      }
-    </style>
   </main>
 </Layout>
+
+<style>
+  h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+
+  main {
+    color: white;
+    padding: 40px;
+  }
+</style>

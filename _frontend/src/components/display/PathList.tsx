@@ -34,7 +34,7 @@ export function PathList({
 }) {
   const [open, setOpen] = useState<{ [key: string]: boolean }>({});
   return (
-    <div className="ml-4 flex flex-col">
+    <div className="ml-4 flex w-[92%] flex-col">
       {Object.keys(data).map((key) => (
         <div key={key} className="flex flex-col items-start">
           <button
@@ -59,28 +59,25 @@ export function PathList({
               </span>
             )}
           </button>
-
-          {data[key].pages.length > 0 && open[key] && (
-            <>
-              {Object.keys(data[key].subdir).length > 0 && (
-                <button
-                  className="ml-4"
-                  onClick={() => {
-                    setPath([...path, key, "/"]);
-                  }}
-                >
-                  /
-                </button>
-              )}
-              <PathList
-                data={{
-                  ...data[key].subdir,
+          <div className={open[key] ? "block" : "hidden"}>
+            {Object.keys(data[key].subdir).length > 0 && (
+              <button
+                className="ml-4"
+                onClick={() => {
+                  setPath([...path, key, "/"]);
                 }}
-                path={[...path, key]}
-                setPath={setPath}
-              ></PathList>
-            </>
-          )}
+              >
+                /
+              </button>
+            )}
+            <PathList
+              data={{
+                ...data[key].subdir,
+              }}
+              path={[...path, key]}
+              setPath={setPath}
+            ></PathList>
+          </div>
         </div>
       ))}
     </div>
