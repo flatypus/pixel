@@ -17,18 +17,20 @@ export default async function Page({ params }: { params: { id: string } }) {
 
   let finished = false;
   let result: Entry[] = [];
+  let page = 0;
 
   while (!finished) {
     const res = await fetch(
-      `${PUBLIC_API_URL ?? "http://localhost:4000"}/views/${id}`,
-      { next: { revalidate: 3600 } },
+      `${PUBLIC_API_URL ?? "http://localhost:4000"}/views/${id}?page=${page}`,
+      { next: { revalidate: 60 } },
     );
     const response = (await res.json()) as {
       data: Entry[];
       finished: boolean;
     };
-    result.concat(response.data);
+    result = result.concat(response.data);
     finished = response.finished;
+    page++;
   }
 
   let structure: NestedObject = {

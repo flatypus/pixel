@@ -2,7 +2,7 @@ import { config } from "dotenv";
 import { cors } from "@elysiajs/cors";
 import { PostgresJsDatabase, drizzle } from "drizzle-orm/postgres-js";
 import { Elysia } from "elysia";
-import { sql, eq } from "drizzle-orm";
+import { sql, eq, asc } from "drizzle-orm";
 import { views } from "./schema";
 import * as schema from "./schema";
 import fetch from "node-fetch";
@@ -13,6 +13,7 @@ config();
 
 const DATABASE_URL = process.env.DATABASE_URL;
 const BLACKLIST = ["localhost:", "127.0.0.1"];
+const CHUNK_SIZE = 5000;
 
 if (!DATABASE_URL) {
   throw new Error("DATABASE_URL is not defined");
@@ -56,7 +57,8 @@ async function queryAndRelease<T>(
 app
   .get("/", () => new Response("Hi! Pixel server is up :)"))
   .get("/.well-known/health-check", () => new Response("OK"))
-  .get("/views/:id", async ({ params: { id } }) => {
+  .get("/views/:id", async ({ params: { id }, query: { page } }) => {
+    console.log(`Fetching ${id} page ${page}`);
     const result = await queryAndRelease((db) => {
       return db.query.views.findMany({
         where: eq(views.path, id),
@@ -73,15 +75,20 @@ app
           pathname: true,
           date: true,
         },
+        orderBy: [asc(views.date)],
+        limit: CHUNK_SIZE,
+        offset: page ? parseInt(page) * CHUNK_SIZE : 0,
       });
     });
 
-    return new Response(JSON.stringify({ finished: true, data: result }), {
-      headers: {
-        "content-type": "application/json",
-        // "Access-Control-Allow-Origin": "*",
+    return new Response(
+      JSON.stringify({ finished: result.length < CHUNK_SIZE, data: result }),
+      {
+        headers: {
+          "content-type": "application/json",
+        },
       },
-    });
+    );
   })
 
   .get("/:id", async ({ params: { id }, query: { type }, request }) => {
