@@ -1,15 +1,18 @@
 import { defineConfig } from "astro/config";
-import tailwind from "@astrojs/tailwind";
 import react from "@astrojs/react";
-import node from "@astrojs/node";
+import tailwind from "@astrojs/tailwind";
+import vercel from "@astrojs/vercel/serverless";
 
 // https://astro.build/config
 export default defineConfig({
   output: "server",
   trailingSlash: "never",
   integrations: [tailwind(), react()],
-  adapter: node({
-    mode: "standalone",
+  adapter: vercel({
+    webAnalytics: {
+      enabled: true,
+    },
+    maxDuration: 8,
   }),
   server: {
     host: "0.0.0.0",
