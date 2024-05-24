@@ -8,6 +8,5 @@
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
-
   }
 }

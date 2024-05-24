@@ -1,38 +1,35 @@
 {
-  "name": "pixel-frontend",
+  "name": "web",
   "private": true,
-  "version": "0.0.1",
   "scripts": {
-    "dev": "astro dev --port 3000",
-    "start": "astro dev --port 3000 --host 0.0.0.0",
-    "build": "astro check && astro build",
-    "preview": "astro preview",
-    "astro": "astro"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
   },
   "dependencies": {
-    "@astrojs/check": "^0.3.1",
-    "@astrojs/node": "^7.0.0",
-    "@astrojs/react": "^3.0.7",
-    "@astrojs/tailwind": "^5.0.2",
-    "@types/react-dom": "^18.0.6",
-    "astro": "^3.5.5",
-    "chartjs-chart-geo": "^4.2.7",
-    "estree-walker": "2.0.2",
-    "react": "^18.0.0",
+    "autoprefixer": "^10.4.17",
+    "chartjs-chart-geo": "^4.3.0",
+    "dotenv": "^16.3.1",
+    "lodash": "^4.17.21",
+    "next": "latest",
+    "react": "^18.2.0",
     "react-chartjs-2": "^5.2.0",
-    "react-dom": "^18.0.0",
-    "tailwindcss": "^3.0.24",
-    "typescript": "^5.2.2",
-    "uuid": "^9.0.1"
+    "react-dom": "^18.2.0",
+    "usehooks-ts": "^2.9.1",
+    "uuid": "^9.0.1",
+    "zustand": "^4.5.0"
   },
   "devDependencies": {
-    "@types/react": "^18.0.21",
-    "@types/uuid": "^9.0.7",
-    "prettier": "^3.1.0",
-    "prettier-plugin-tailwindcss": "^0.5.7"
-  },
-  "resolutions": {
-    "string-width": "4.2.3",
-    "strip-ansi": "6.0.1"
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "@types/uuid": "^9.0.8",
+    "eslint": "^8",
+    "eslint-config-next": "14.1.0",
+    "postcss": "^8",
+    "prettier-plugin-tailwindcss": "^0.5.11",
+    "tailwindcss": "^3.3.0",
+    "typescript": "^5"
   }
 }

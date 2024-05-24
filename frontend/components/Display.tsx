@@ -1,10 +1,10 @@
-import { CityPieChart } from "./Pie.tsx";
-import { Geo } from "./Geo.tsx";
-import { Graph } from "./Graph.tsx";
-import { PathList } from "./display/PathList.tsx";
-import { sortByCount, recursiveFlatten } from "../lib/helpers.ts";
+import { CityPieChart } from "./Pie";
+import { Geo } from "./Geo";
+import { Graph } from "./Graph";
+import { PathList } from "./display/PathList";
+import { sortByCount, recursiveFlatten } from "../lib/helpers";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useSwitch } from "./display/Switch.tsx";
+import { useSwitch } from "./display/Switch";
 import type { Entry, NestedObject } from "../types/entry";
 
 export default function Display({ data: all_data }: { data: NestedObject }) {
