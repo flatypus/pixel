@@ -1,3 +1,5 @@
+"use client";
+
 import { Geo } from "./Geo";
 import { Graph } from "./Graph";
 import { PathList } from "./display/PathList";

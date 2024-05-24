@@ -60,39 +60,23 @@ app
     const result = await queryAndRelease((db) => {
       return db.query.views.findMany({
         where: eq(views.path, id),
+        columns: {
+          ip: true,
+          country: true,
+          region: false,
+          city: true,
+          latitude: true,
+          longitude: true,
+          isp: false,
+          user_agent: false,
+          host: true,
+          pathname: true,
+          date: true,
+        },
       });
     });
 
-    type NestedObject = {
-      [key: string]: { subdir: NestedObject; pages: typeof result };
-    };
-    let structure: NestedObject = {
-      "Unknown source": { subdir: {}, pages: [] },
-    };
-
-    for (const row of result) {
-      if (!row.ip || row.ip === "127.0.0.01" || !row.country) continue;
-      if (!row.host || !row.pathname) {
-        structure["Unknown source"].pages.push(row);
-        continue;
-      }
-      const parts = [row.host, ...row.pathname.split("/").filter(Boolean)];
-      let current = structure;
-
-      while (parts.length) {
-        const part = parts.shift() as string;
-        if (!current[part]) {
-          current[part] = { subdir: {}, pages: [] };
-        }
-        if (parts.length === 0) {
-          current[part].pages.push(row);
-          break;
-        }
-        current = current[part].subdir;
-      }
-    }
-
-    return new Response(JSON.stringify(structure), {
+    return new Response(JSON.stringify({ finished: true, data: result }), {
       headers: {
         "content-type": "application/json",
         // "Access-Control-Allow-Origin": "*",
