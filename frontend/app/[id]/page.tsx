@@ -1,7 +1,6 @@
+import { config } from "dotenv";
 import { env } from "process";
 import { NestedObject } from "@/types/entry";
-import { useEffect, useState } from "react";
-import { config } from "dotenv";
 import Display from "@/components/Display";
 
 config();
@@ -13,27 +12,20 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
     title: `Tracking: ${params.id}`,
   };
 }
-export default function Page({ params }: { params: { id: string } }) {
-  const [all_data, setAllData] = useState<NestedObject>({});
+
+export default async function Page({ params }: { params: { id: string } }) {
   const { id } = params;
 
-  useEffect(() => {
-    if (!id) return;
-    fetch(`${PUBLIC_API_URL ?? "http://localhost:4000"}/views/${id}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      mode: "cors",
-    })
-      .then((r) => r.json())
-      .then((data) => setAllData(data));
-  }, [id]);
+  const res = await fetch(
+    `${PUBLIC_API_URL ?? "http://localhost:4000"}/views/${id}`,
+  );
+
+  const data = (await res.json()) as NestedObject;
 
   return (
     <main className="w-full text-white">
       <h1 className="p-4">Tracking: {id}</h1>
-      <Display data={all_data} />
+      <Display data={data} />
     </main>
   );
 }
