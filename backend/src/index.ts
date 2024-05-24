@@ -19,12 +19,7 @@ if (!DATABASE_URL) {
 }
 
 const app = new Elysia();
-app.use(
-  cors({
-    origin: "*",
-    methods: ["GET", "POST"],
-  }),
-);
+app.use(cors());
 
 const transparentPngBuffer = Buffer.from(
   "89504e470d0a1a0a0000000d49484452000000010000000108060000001f15c489000000017352474200aece1ce90000000b494441541857636000020000050001aad5c8510000000049454e44ae426082",
@@ -100,6 +95,7 @@ app
     return new Response(JSON.stringify(structure), {
       headers: {
         "content-type": "application/json",
+        // "Access-Control-Allow-Origin": "*",
       },
     });
   })

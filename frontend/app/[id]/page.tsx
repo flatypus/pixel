@@ -28,8 +28,8 @@ export default function Page({ params }: { params: { id: string } }) {
   }, [id]);
 
   return (
-    <main>
-      <h1>Tracking: {id}</h1>
+    <main className="w-full text-white">
+      <h1 className="p-4">Tracking: {id}</h1>
       <Display data={all_data} />
     </main>
   );

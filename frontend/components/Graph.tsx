@@ -72,6 +72,18 @@ export function Graph({ data }: { data: any }) {
         interaction: {
           mode: "point",
         },
+        scales: {
+          x: {
+            grid: {
+              color: "rgba(255, 255, 255, 0.15)",
+            },
+          },
+          y: {
+            grid: {
+              color: "rgba(255, 255, 255, 0.15)",
+            },
+          },
+        },
       }}
     />
   );

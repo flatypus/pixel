@@ -4,7 +4,10 @@ import { v4 as uuidv4 } from "uuid";
 export default function Page() {
   const uuid = uuidv4();
   return (
-    <main>
+    <main
+      className="w-[800px] max-w-[calc(100%-2rem)] p-8 text-2xl text-white"
+      style={{ margin: "auto" }}
+    >
       <Head>
         <title>pixel | a simple view tracker</title>
       </Head>
