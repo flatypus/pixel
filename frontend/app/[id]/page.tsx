@@ -1,5 +1,3 @@
-"use client";
-
 import { env } from "process";
 import { NestedObject } from "@/types/entry";
 import { useEffect, useState } from "react";
