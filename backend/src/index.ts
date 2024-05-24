@@ -2,7 +2,7 @@ import { config } from "dotenv";
 import { cors } from "@elysiajs/cors";
 import { PostgresJsDatabase, drizzle } from "drizzle-orm/postgres-js";
 import { Elysia } from "elysia";
-import { sql, eq } from "drizzle-orm";
+import { sql, eq, asc } from "drizzle-orm";
 import { views } from "./schema";
 import * as schema from "./schema";
 import fetch from "node-fetch";
@@ -13,6 +13,7 @@ config();
 
 const DATABASE_URL = process.env.DATABASE_URL;
 const BLACKLIST = ["localhost:", "127.0.0.1"];
+const CHUNK_SIZE = 5000;
 
 if (!DATABASE_URL) {
   throw new Error("DATABASE_URL is not defined");
@@ -56,48 +57,38 @@ async function queryAndRelease<T>(
 app
   .get("/", () => new Response("Hi! Pixel server is up :)"))
   .get("/.well-known/health-check", () => new Response("OK"))
-  .get("/views/:id", async ({ params: { id } }) => {
+  .get("/views/:id", async ({ params: { id }, query: { page } }) => {
+    console.log(`Fetching ${id} page ${page}`);
     const result = await queryAndRelease((db) => {
       return db.query.views.findMany({
         where: eq(views.path, id),
+        columns: {
+          ip: true,
+          country: true,
+          region: false,
+          city: true,
+          latitude: true,
+          longitude: true,
+          isp: false,
+          user_agent: false,
+          host: true,
+          pathname: true,
+          date: true,
+        },
+        orderBy: [asc(views.date)],
+        limit: CHUNK_SIZE,
+        offset: page ? parseInt(page) * CHUNK_SIZE : 0,
       });
     });
 
-    type NestedObject = {
-      [key: string]: { subdir: NestedObject; pages: typeof result };
-    };
-    let structure: NestedObject = {
-      "Unknown source": { subdir: {}, pages: [] },
-    };
-
-    for (const row of result) {
-      if (!row.ip || row.ip === "127.0.0.01" || !row.country) continue;
-      if (!row.host || !row.pathname) {
-        structure["Unknown source"].pages.push(row);
-        continue;
-      }
-      const parts = [row.host, ...row.pathname.split("/").filter(Boolean)];
-      let current = structure;
-
-      while (parts.length) {
-        const part = parts.shift() as string;
-        if (!current[part]) {
-          current[part] = { subdir: {}, pages: [] };
-        }
-        if (parts.length === 0) {
-          current[part].pages.push(row);
-          break;
-        }
-        current = current[part].subdir;
-      }
-    }
-
-    return new Response(JSON.stringify(structure), {
-      headers: {
-        "content-type": "application/json",
-        // "Access-Control-Allow-Origin": "*",
+    return new Response(
+      JSON.stringify({ finished: result.length < CHUNK_SIZE, data: result }),
+      {
+        headers: {
+          "content-type": "application/json",
+        },
       },
-    });
+    );
   })
 
   .get("/:id", async ({ params: { id }, query: { type }, request }) => {
