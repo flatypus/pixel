@@ -220,7 +220,7 @@ export default function Display({ data: all_data }: { data: NestedObject }) {
             />
             <StatViewer
               title="Unique recent requests"
-              num={uniqueData.length}
+              num={uniqueRecentData.length}
               mode="uniqueRecent"
               currentMode={mode}
               last={"Last 30 days"}
