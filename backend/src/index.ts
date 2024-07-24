@@ -8,12 +8,18 @@ import * as schema from "./schema";
 import fetch from "node-fetch";
 import outdent from "outdent";
 import postgres from "postgres";
+import { MD5 } from "bun";
 
 config();
 
 const DATABASE_URL = process.env.DATABASE_URL;
+const HASH = process.env.HASH;
 const BLACKLIST = ["localhost:", "127.0.0.1"];
 const CHUNK_SIZE = 5000;
+
+if (!HASH) {
+  throw new Error("HASH is not defined");
+}
 
 if (!DATABASE_URL) {
   throw new Error("DATABASE_URL is not defined");
@@ -79,6 +85,20 @@ app
         limit: CHUNK_SIZE,
         offset: page ? parseInt(page) * CHUNK_SIZE : 0,
       });
+    });
+
+    // hash ip for privacy
+    result.forEach((r) => {
+      const hasher = new MD5();
+      if (!r.ip || r.ip === "127.0.0.1") {
+        r.ip = "";
+      } else {
+        r.ip = hasher
+          .update(r.ip || "")
+          .update(HASH)
+          .digest("hex")
+          .slice(0, 12);
+      }
     });
 
     return new Response(
