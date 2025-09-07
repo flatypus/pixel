@@ -15,7 +15,7 @@ config();
 const DATABASE_URL = process.env.DATABASE_URL;
 const HASH = process.env.HASH;
 const BLACKLIST = ["localhost:", "127.0.0.1"];
-const CHUNK_SIZE = 5000;
+const CHUNK_SIZE = 20000;
 
 if (!HASH) {
   throw new Error("HASH is not defined");
